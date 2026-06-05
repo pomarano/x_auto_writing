@@ -1,5 +1,5 @@
 # blog_company — GitHub には X 下書き自動化に必要なファイルのみ登録
-# 一覧: GITHUB-REPO.md
+# ローカル専用: GITHUB-REPO.md, automation/x-daily/CLOUD.md
 
 # ── デフォルト: すべて無視 ──
 *
@@ -7,7 +7,6 @@
 # ── リポジトリメタ ──
 !/.gitignore
 !/README.md
-!/GITHUB-REPO.md
 
 # ── GitHub Actions ──
 !/.github/
@@ -32,7 +31,6 @@
 !/.company/secretary/automation/x-daily/extract_email.mjs
 !/.company/secretary/automation/x-daily/send_resend.mjs
 !/.company/secretary/automation/x-daily/README.md
-!/.company/secretary/automation/x-daily/CLOUD.md
 !/.company/secretary/automation/x-daily/.env.example
 
 # ── 生成される下書き（Actions がコミット） ──

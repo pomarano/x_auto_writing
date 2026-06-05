@@ -56,9 +56,34 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pomarano.x-daily-dra
 launchctl bootout gui/$(id -u)/com.pomarano.x-daily-draft
 ```
 
-## Mac がスリープする場合
+## GitHub Actions（推奨）
 
-**launchd はスリープ中動きません。** クラウド実行は **`CLOUD.md`** を参照（**GitHub Actions 推奨**）。
+Mac の launchd は **スリープ中動きません**。常時実行は GitHub Actions を使います。
+
+ワークフロー: リポジトリ直下 `.github/workflows/x-daily-draft.yml`（毎日 22:00 UTC = 翌 07:00 JST）
+
+### Secrets（Settings → Secrets and variables → Actions）
+
+| 名前 | 必須 | 内容 |
+|------|------|------|
+| `CURSOR_API_KEY` | ○ | [Cursor Dashboard](https://cursor.com/dashboard) の **User API Key** |
+| `NOTIFY_EMAIL` | △ | 通知先メールアドレス |
+| `MAIL_USERNAME` | △ | Gmail 送信用 |
+| `MAIL_APP_PASSWORD` | △ | Gmail アプリパスワード（16桁） |
+| `RESEND_API_KEY` | △ | [Resend](https://resend.com) API キー（Resend 方式） |
+
+### Variables
+
+| 名前 | 値 | 説明 |
+|------|-----|------|
+| `X_DAILY_EMAIL_ENABLED` | `true` | メール通知を有効化 |
+| `X_DAILY_EMAIL_PROVIDER` | `gmail` または `resend` | 省略時は Gmail |
+
+### 動作確認
+
+Actions タブ → **X Daily Draft** → **Run workflow**
+
+下書きは `social/x-drafts/YYYY-MM-DD.md` にコミットされます。Mac の launchd は停止してよいです。
 
 ## 注意
 
