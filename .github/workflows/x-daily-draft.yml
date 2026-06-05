@@ -73,6 +73,11 @@ jobs:
         run: |
           DRAFT="../../social/x-drafts/${{ steps.date.outputs.today }}.md"
           node extract_email.mjs "$DRAFT"
+          echo "Subject: $(cat email-subject.txt)"
+          echo "Body bytes: $(wc -c < email-body.txt)"
+          echo "Notify: ${NOTIFY_EMAIL:+set}${NOTIFY_EMAIL:-MISSING}"
+        env:
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
 
       # 方式A: Gmail（推奨・個人向け）
       - name: Send email (Gmail SMTP)

@@ -45,8 +45,10 @@ ${postBody}
 
 ━━━━━━━━━━━━━━━━━━━━
 
+■ 文字数: ${charCount}字 / 140字上限（日本語X）
+
 ■ あなたの作業
-1. 内容を確認（必要なら手直し）
+1. 140字以内か確認（超えていれば手直し）
 2. X にコピペして投稿
 3. GitHub 上の draft ファイルの status を posted に変更（任意）
 
@@ -58,6 +60,14 @@ ${draftPath}
 
 writeFileSync(join(__dirname, "email-subject.txt"), subject, "utf8");
 writeFileSync(join(__dirname, "email-body.txt"), body, "utf8");
+
+const limit = 140;
+if (charCount > limit) {
+  console.log(`::warning::投稿本文が${charCount}字 — 日本語Xの上限${limit}字を超えています`);
+  process.exitCode = 0; // メールは送るが警告
+} else {
+  console.log(`Char count OK: ${charCount}/${limit}`);
+}
 
 console.log(`Subject: ${subject}`);
 console.log(`Body chars: ${body.length}`);
