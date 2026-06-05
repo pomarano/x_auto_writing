@@ -80,7 +80,7 @@ jobs:
           steps.notify.outputs.send == 'true' &&
           vars.X_DAILY_EMAIL_ENABLED == 'true' &&
           vars.X_DAILY_EMAIL_PROVIDER != 'resend'
-        uses: dawidd6/action-send-mail@v4
+        uses: dawidd6/action-send-mail@v17
         with:
           server_address: smtp.gmail.com
           server_port: 465
