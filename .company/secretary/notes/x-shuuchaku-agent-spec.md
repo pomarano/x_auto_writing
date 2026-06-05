@@ -150,10 +150,10 @@ char_count: N
 
 ### エージェントの起動方法
 
-1. **自動（推奨）— launchd 1日1回**  
+1. **自動（推奨）— GitHub Actions 1日1回**  
    - セットアップ: `.company/secretary/automation/x-daily/README.md`  
    - 毎朝 7:00 JST に Cursor SDK で下書き生成  
-   - Mac が起動していれば Cursor IDE は不要
+   - Mac の電源状態に依存しない
 
 2. **手動（Cursor IDE）**  
    - `x-shuuchaku-agent-prompt.md` を Agent に貼る
