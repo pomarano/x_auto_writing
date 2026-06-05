@@ -1,0 +1,93 @@
+# X 下書きを毎日1回生成 + メール通知（Mac スリープ不要）
+# 07:00 JST = 22:00 UTC（前日）
+name: X Daily Draft
+
+on:
+  schedule:
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x-daily-draft
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: .company/secretary/automation/x-daily/package-lock.json
+
+      - name: Install dependencies
+        working-directory: .company/secretary/automation/x-daily
+        run: npm ci --omit=dev || npm install --omit=dev
+
+      - name: Today's date (JST)
+        id: date
+        run: echo "today=$(TZ=Asia/Tokyo date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate draft
+        id: generate
+        working-directory: .company/secretary/automation/x-daily
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          TZ: Asia/Tokyo
+        run: node run_daily.mjs
+
+      - name: Prepare email body
+        if: steps.generate.outputs.draft_created == 'true'
+        working-directory: .company/secretary/automation/x-daily
+        run: |
+          DRAFT="../../social/x-drafts/${{ steps.date.outputs.today }}.md"
+          node extract_email.mjs "$DRAFT"
+
+      # 方式A: Gmail（推奨・個人向け）
+      - name: Send email (Gmail SMTP)
+        if: >-
+          vars.X_DAILY_EMAIL_ENABLED == 'true' &&
+          steps.generate.outputs.draft_created == 'true' &&
+          vars.X_DAILY_EMAIL_PROVIDER != 'resend'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: file://.company/secretary/automation/x-daily/email-subject.txt
+          body: file://.company/secretary/automation/x-daily/email-body.txt
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.MAIL_USERNAME }}
+
+      # 方式B: Resend（API が簡単・ドメイン設定後は本番向き）
+      - name: Send email (Resend)
+        if: >-
+          vars.X_DAILY_EMAIL_ENABLED == 'true' &&
+          steps.generate.outputs.draft_created == 'true' &&
+          vars.X_DAILY_EMAIL_PROVIDER == 'resend'
+        working-directory: .company/secretary/automation/x-daily
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
+        run: node send_resend.mjs
+
+      - name: Commit draft if new
+        if: steps.generate.outputs.draft_created == 'true'
+        run: |
+          git config user.name "x-daily-bot"
+          git config user.email "x-daily-bot@users.noreply.github.com"
+          git add .company/secretary/social/x-drafts/
+          git commit -m "chore(x-daily): add draft ${{ steps.date.outputs.today }}"
+          git push

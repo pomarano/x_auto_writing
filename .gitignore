@@ -1,0 +1,53 @@
+# blog_company — GitHub には X 下書き自動化に必要なファイルのみ登録
+# 一覧: GITHUB-REPO.md
+
+# ── デフォルト: すべて無視 ──
+*
+
+# ── リポジトリメタ ──
+!/.gitignore
+!/README.md
+!/GITHUB-REPO.md
+
+# ── GitHub Actions ──
+!/.github/
+!/.github/workflows/
+!/.github/workflows/x-daily-draft.yml
+
+# ── エージェント仕様（プロンプトが参照） ──
+!/.company/
+!/.company/secretary/
+!/.company/secretary/notes/
+/.company/secretary/notes/*
+!/.company/secretary/notes/x-shuuchaku-agent-spec.md
+
+# ── 自動化スクリプト ──
+!/.company/secretary/automation/
+!/.company/secretary/automation/x-daily/
+/.company/secretary/automation/x-daily/*
+!/.company/secretary/automation/x-daily/package.json
+!/.company/secretary/automation/x-daily/package-lock.json
+!/.company/secretary/automation/x-daily/prompt.md
+!/.company/secretary/automation/x-daily/run_daily.mjs
+!/.company/secretary/automation/x-daily/extract_email.mjs
+!/.company/secretary/automation/x-daily/send_resend.mjs
+!/.company/secretary/automation/x-daily/README.md
+!/.company/secretary/automation/x-daily/CLOUD.md
+!/.company/secretary/automation/x-daily/.env.example
+
+# ── 生成される下書き（Actions がコミット） ──
+!/.company/secretary/social/
+!/.company/secretary/social/x-drafts/
+!/.company/secretary/social/x-drafts/**
+
+# ── 常に除外（許可パス内でも） ──
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules/
+**/.venv/
+**/logs/
+**/email-subject.txt
+**/email-body.txt
+*.log
+.DS_Store

@@ -1,0 +1,8 @@
+{
+  "name": "x-daily-draft",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@cursor/sdk": "^1.0.18"
+  }
+}
