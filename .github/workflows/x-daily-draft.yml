@@ -45,8 +45,30 @@ jobs:
           TZ: Asia/Tokyo
         run: node run_daily.mjs
 
+      # 新規作成時はメール送信。手動実行時は既存下書きがあっても送信（テスト用）
+      - name: Decide email send
+        id: notify
+        run: |
+          FILE=".company/secretary/social/x-drafts/${{ steps.date.outputs.today }}.md"
+          CREATED="${{ steps.generate.outputs.draft_created }}"
+          if [[ ! -f "$FILE" ]]; then
+            echo "send=false" >> "$GITHUB_OUTPUT"
+            echo "No draft file for today: $FILE"
+            exit 0
+          fi
+          if [[ "$CREATED" == "true" ]]; then
+            echo "send=true" >> "$GITHUB_OUTPUT"
+            echo "Will send: new draft created"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "send=true" >> "$GITHUB_OUTPUT"
+            echo "Will send: manual run with existing draft"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+            echo "Skip email: draft already exists (scheduled run)"
+          fi
+
       - name: Prepare email body
-        if: steps.generate.outputs.draft_created == 'true'
+        if: steps.notify.outputs.send == 'true' && vars.X_DAILY_EMAIL_ENABLED == 'true'
         working-directory: .company/secretary/automation/x-daily
         run: |
           DRAFT="../../social/x-drafts/${{ steps.date.outputs.today }}.md"
@@ -55,8 +77,8 @@ jobs:
       # 方式A: Gmail（推奨・個人向け）
       - name: Send email (Gmail SMTP)
         if: >-
+          steps.notify.outputs.send == 'true' &&
           vars.X_DAILY_EMAIL_ENABLED == 'true' &&
-          steps.generate.outputs.draft_created == 'true' &&
           vars.X_DAILY_EMAIL_PROVIDER != 'resend'
         uses: dawidd6/action-send-mail@v4
         with:
@@ -70,11 +92,17 @@ jobs:
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: ${{ secrets.MAIL_USERNAME }}
 
+      - name: Email skipped (checklist)
+        if: steps.notify.outputs.send == 'true' && vars.X_DAILY_EMAIL_ENABLED != 'true'
+        run: |
+          echo "::warning::メール未送信: Variables で X_DAILY_EMAIL_ENABLED=true を設定してください"
+          echo "Secrets: NOTIFY_EMAIL, MAIL_USERNAME, MAIL_APP_PASSWORD も必要です"
+
       # 方式B: Resend（API が簡単・ドメイン設定後は本番向き）
       - name: Send email (Resend)
         if: >-
+          steps.notify.outputs.send == 'true' &&
           vars.X_DAILY_EMAIL_ENABLED == 'true' &&
-          steps.generate.outputs.draft_created == 'true' &&
           vars.X_DAILY_EMAIL_PROVIDER == 'resend'
         working-directory: .company/secretary/automation/x-daily
         env:
