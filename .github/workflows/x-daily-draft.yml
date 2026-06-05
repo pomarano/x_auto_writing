@@ -20,12 +20,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
           cache-dependency-path: .company/secretary/automation/x-daily/package-lock.json
 
@@ -58,7 +58,7 @@ jobs:
           vars.X_DAILY_EMAIL_ENABLED == 'true' &&
           steps.generate.outputs.draft_created == 'true' &&
           vars.X_DAILY_EMAIL_PROVIDER != 'resend'
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp.gmail.com
           server_port: 465

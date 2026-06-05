@@ -1,6 +1,8 @@
-# x-daily-introspection
+# x_auto_writing
 
 **内省テック**向け X 投稿下書きの半自動生成リポジトリです。
+
+- GitHub: https://github.com/pomarano/x_auto_writing
 
 - 毎朝 GitHub Actions が下書きを作成
 - メールで投稿本文を通知（設定時）

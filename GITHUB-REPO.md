@@ -38,7 +38,19 @@ purpose: X 下書きの自動生成 + メール通知（GitHub Actions）
 - `.company/secretary/todos/` / `inbox/`
 - `.company/CLAUDE.md` など
 
-## 初回 push 手順
+## 初回 push 手順（`gh` コマンド不要）
+
+### 1. GitHub で空のリポジトリを作る
+
+1. ブラウザで https://github.com/new を開く
+2. Repository name: `x_auto_writing`（登録済み）
+3. **Private** を選択
+4. 「Add a README file」などは **チェックしない**（空のまま）
+5. **Create repository** をクリック
+
+リポジトリ URL: https://github.com/pomarano/x_auto_writing
+
+### 2. ローカルから push
 
 ```bash
 cd /Users/ooguchi/Desktop/claude_company/blog_company
@@ -46,8 +58,12 @@ git init
 git add .
 git status   # ← 上記「登録されるもの」だけが緑になっているか確認
 git commit -m "Add X daily draft automation (minimal repo)"
-gh repo create x-daily-introspection --private --source=. --push
+git branch -M main
+git remote add origin https://github.com/pomarano/x_auto_writing.git
+git push -u origin main
 ```
+
+初回 `git push` で GitHub のログインを求められたら、ブラウザまたは Personal Access Token で認証します。
 
 `git status` で記事ドラフトなどが出てきたら `.gitignore` を見直してください。
 
